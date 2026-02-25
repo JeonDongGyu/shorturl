@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL 단축 서비스</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 500px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .short-url {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .short-url input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .copy-btn {
+            width: auto;
+            padding: 12px 20px;
+            font-size: 14px;
+        }
+
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f4fd;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info p {
+            color: #555;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 30px 0;
+        }
+
+        .lookup-section h2 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 URL 단축 서비스</h1>
+        
+        <!-- URL 단축 섹션 -->
+        <div class="input-group">
+            <label for="originalUrl">단축할 URL을 입력하세요</label>
+            <input type="text" id="originalUrl" placeholder="https://www.example.com/very/long/url">
+        </div>
+        
+        <button onclick="shortenUrl()">URL 단축하기</button>
+        
+        <div class="result" id="result">
+            <h3>✅ 단축 완료!</h3>
+            <div class="short-url">
+                <input type="text" id="shortUrl" readonly>
+                <button class="copy-btn" onclick="copyUrl()">복사</button>
+            </div>
+            <div class="info">
+                <p><strong>원본 URL:</strong> <span id="displayOriginal"></span></p>
+                <p><strong>단축 키:</strong> <span id="displayKey"></span></p>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- URL 정보 조회 섹션 -->
+        <div class="lookup-section">
+            <h2>📊 단축 URL 정보 조회</h2>
+            <div class="input-group">
+                <label for="lookupKey">단축 키 입력</label>
+                <input type="text" id="lookupKey" placeholder="abc12345">
+            </div>
+            <button onclick="lookupUrl()">조회하기</button>
+            
+            <div class="result" id="lookupResult">
+                <h3>📋 URL 정보</h3>
+                <div class="info">
+                    <p><strong>원본 URL:</strong> <span id="infoOriginal"></span></p>
+                    <p><strong>단축 키:</strong> <span id="infoKey"></span></p>
+                    <p><strong>클릭 횟수:</strong> <span id="infoCount"></span>회</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080';
+
+        async function shortenUrl() {
+            const originalUrl = document.getElementById('originalUrl').value;
+
+            
+            if (!originalUrl) {
+                alert('URL을 입력해주세요!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/shortenUrl`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ originalUrl: originalUrl })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    document.getElementById('shortUrl').value = `${API_BASE}/coding/${data.shortenUrlKey}`;
+                    document.getElementById('displayOriginal').textContent = data.originalUrl;
+                    document.getElementById('displayKey').textContent = data.shortenUrlKey;
+                    document.getElementById('result').classList.add('show');
+                } else {
+                    alert('URL 단축에 실패했습니다.');
+                }
+            } catch (error) {
+                alert('서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.');
+                console.error(error);
+            }
+        }
+
+        async function lookupUrl() {
+            const shortenUrlKey = document.getElementById('lookupKey').value;
+            
+            if (!shortenUrlKey) {
+                alert('단축 키를 입력해주세요!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/shortenUrl/${shortenUrlKey}`);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    document.getElementById('infoOriginal').textContent = data.originalUrl;
+                    document.getElementById('infoKey').textContent = data.shortenUrlKey;
+                    document.getElementById('infoCount').textContent = data.redirectCount;
+                    document.getElementById('lookupResult').classList.add('show');
+                } else {
+                    alert('해당 단축 URL을 찾을 수 없습니다.');
+                }
+            } catch (error) {
+                alert('서버에 연결할 수 없습니다.');
+                console.error(error);
+            }
+        }
+
+        function copyUrl() {
+            const shortUrl = document.getElementById('shortUrl');
+            shortUrl.select();
+            document.execCommand('copy');
+            alert('복사되었습니다!');
+        }
+    </script>
+</body>
+</html>
