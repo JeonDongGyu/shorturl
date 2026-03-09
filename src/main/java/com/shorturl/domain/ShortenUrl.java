@@ -29,11 +29,15 @@ public class ShortenUrl {
 
     private LocalDateTime updateAt;
 
-    public ShortenUrl(String originalUrl, String shortenUrlKey){
+    @ManyToOne
+    private User user;
+
+    public ShortenUrl(String originalUrl, String shortenUrlKey, User user){
         this.originalUrl = originalUrl;
         this.shortenUrlKey = shortenUrlKey;
         this.redirectCount = 0L;
         this.createdAt = LocalDateTime.now();
+        this.user = user;
     }
 
     public static String generateShortenUrlKey() {
@@ -51,6 +55,6 @@ public class ShortenUrl {
     }
 
     public void increaseRedirectCount() {
-        redirectCount++;
+        this.redirectCount = this.redirectCount + 1;
     }
 }

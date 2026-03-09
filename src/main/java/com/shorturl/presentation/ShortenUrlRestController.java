@@ -2,6 +2,8 @@ package com.shorturl.presentation;
 
 import com.shorturl.application.ShortenUrlService;
 import com.shorturl.domain.ShortenUrl;
+import com.shorturl.domain.User;
+import com.shorturl.domain.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -20,10 +22,12 @@ import static org.springframework.http.ResponseEntity.ok;
 public class ShortenUrlRestController {
 
     private final ShortenUrlService shortenUrlService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public ShortenUrlRestController(ShortenUrlService shortenUrlService) {
+    public ShortenUrlRestController(ShortenUrlService shortenUrlService, UserRepository userRepository) {
         this.shortenUrlService = shortenUrlService;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/")
@@ -36,7 +40,10 @@ public class ShortenUrlRestController {
     @Operation(summary = "URL 단축 생성", description = "원본 URL을 받아서 단축 URL을 생성합니다")
     @PostMapping("/shortenUrl")
     public ResponseEntity<ShortenUrlCreateResponseDto> createShortenUrl(@Valid @RequestBody ShortenUrlCreateRequestDto request){
-        ShortenUrl url =  shortenUrlService.generateShortenUrl(request.getOriginalUrl());
+
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+        ShortenUrl url =  shortenUrlService.generateShortenUrl(request.getOriginalUrl(), user);
         ShortenUrlCreateResponseDto responseDto = new ShortenUrlCreateResponseDto(url.getOriginalUrl(), url.getShortenUrlKey());
         return ResponseEntity.ok(responseDto);
     }
@@ -53,7 +60,7 @@ public class ShortenUrlRestController {
         headers.setLocation(URI.create(url));
 
         //301 상태코드와 함께 전달
-        return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
+        return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 
     @Operation(summary = "단축 URL 정보 조회", description = "단축 URL의 클릭 수 등 정보를 조회합니다.")

@@ -2,6 +2,7 @@ package com.shorturl.application;
 
 import com.shorturl.domain.ShortenUrl;
 import com.shorturl.domain.ShortenUrlRepository;
+import com.shorturl.domain.User;
 import com.shorturl.exception.UrlNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,14 +20,14 @@ public class ShortenUrlService {
 
     //URL을 받아서 단축 URL 생성 후 저장
     @Transactional
-    public ShortenUrl generateShortenUrl(String originalUrl){
+    public ShortenUrl generateShortenUrl(String originalUrl, User user){
         // http:// 없으면 자동 추가
         if (!originalUrl.startsWith("http://") && !originalUrl.startsWith("https://")) {
             originalUrl = "https://" + originalUrl;
         }
 
         String shortenUrlKey = ShortenUrl.generateShortenUrlKey();
-        ShortenUrl shortenUrl = new ShortenUrl(originalUrl, shortenUrlKey);
+        ShortenUrl shortenUrl = new ShortenUrl(originalUrl, shortenUrlKey, user);
         shortenUrlRepository.save(shortenUrl);
         return shortenUrl;
     }

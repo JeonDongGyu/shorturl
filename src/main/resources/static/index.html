@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>URL 단축 서비스</title>
+    <title>Shortly - URL 단축 서비스</title>
     <style>
         * {
             margin: 0;
@@ -13,253 +13,634 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f8f9fa;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
 
-        .container {
+        /* 네비게이션 */
+        .navbar {
             background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            width: 500px;
+            padding: 15px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
         }
 
-        h1 {
-            text-align: center;
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .nav-buttons button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-login {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea !important;
+        }
+
+        .btn-register {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-logout {
+            background: #dc3545;
+            color: white;
+            display: none;
+        }
+
+        .user-info {
+            display: none;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info span {
             color: #333;
-            margin-bottom: 30px;
-            font-size: 28px;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
             font-weight: 600;
         }
 
-        input[type="text"] {
-            width: 100%;
-            padding: 15px;
+        /* 메인 컨텐츠 */
+        .main-content {
+            padding-top: 100px;
+            max-width: 800px;
+            margin: 0 auto;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        /* 히어로 섹션 */
+        .hero {
+            text-align: center;
+            padding: 60px 0;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        /* URL 입력 박스 */
+        .url-box {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .url-input-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .url-input-group input {
+            flex: 1;
+            padding: 18px 20px;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             font-size: 16px;
             transition: border-color 0.3s;
         }
 
-        input[type="text"]:focus {
+        .url-input-group input:focus {
             outline: none;
             border-color: #667eea;
         }
 
-        button {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .url-input-group button {
+            padding: 18px 40px;
+            background: #667eea;
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: background 0.3s;
         }
 
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        .url-input-group button:hover {
+            background: #5a6fd6;
         }
 
-        .result {
-            margin-top: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
+        /* 결과 박스 */
+        .result-box {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
             display: none;
         }
 
-        .result.show {
+        .result-box.show {
             display: block;
         }
 
-        .result h3 {
-            color: #333;
-            margin-bottom: 15px;
+        .result-box h3 {
+            color: #28a745;
+            margin-bottom: 20px;
+            font-size: 20px;
         }
 
-        .short-url {
+        .short-url-display {
             display: flex;
-            align-items: center;
             gap: 10px;
+            margin-bottom: 20px;
         }
 
-        .short-url input {
+        .short-url-display input {
             flex: 1;
-            padding: 12px;
+            padding: 15px;
             border: 2px solid #667eea;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 16px;
             color: #667eea;
+            font-weight: 600;
+            background: #f8f9ff;
+        }
+
+        .short-url-display button {
+            padding: 15px 25px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
             font-weight: 600;
         }
 
-        .copy-btn {
-            width: auto;
-            padding: 12px 20px;
-            font-size: 14px;
-        }
-
-        .info {
-            margin-top: 20px;
+        .result-info {
+            background: #f8f9fa;
             padding: 15px;
-            background: #e8f4fd;
             border-radius: 8px;
-            border-left: 4px solid #667eea;
         }
 
-        .info p {
+        .result-info p {
+            margin: 8px 0;
             color: #555;
-            font-size: 14px;
-            margin: 5px 0;
         }
 
-        .divider {
-            height: 1px;
-            background: #e0e0e0;
-            margin: 30px 0;
+        /* 조회 섹션 */
+        .lookup-section {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
 
         .lookup-section h2 {
             color: #333;
-            font-size: 20px;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        /* 모달 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            width: 400px;
+            max-width: 90%;
+        }
+
+        .modal h2 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .modal .input-group {
             margin-bottom: 20px;
+        }
+
+        .modal label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .modal input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .modal input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .modal button {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .modal .close-btn {
+            background: #e0e0e0;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        /* 로그인 필요 메시지 */
+        .login-required {
+            text-align: center;
+            padding: 40px;
+            background: #fff3cd;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .login-required p {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .login-required button {
+            padding: 10px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* 알림 토스트 */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 30px;
+            background: #28a745;
+            color: white;
+            border-radius: 10px;
+            display: none;
+            z-index: 300;
+            font-weight: 600;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        .toast.error {
+            background: #dc3545;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🔗 URL 단축 서비스</h1>
-        
-        <!-- URL 단축 섹션 -->
-        <div class="input-group">
-            <label for="originalUrl">단축할 URL을 입력하세요</label>
-            <input type="text" id="originalUrl" placeholder="https://www.example.com/very/long/url">
-        </div>
-        
-        <button onclick="shortenUrl()">URL 단축하기</button>
-        
-        <div class="result" id="result">
-            <h3>✅ 단축 완료!</h3>
-            <div class="short-url">
-                <input type="text" id="shortUrl" readonly>
-                <button class="copy-btn" onclick="copyUrl()">복사</button>
-            </div>
-            <div class="info">
-                <p><strong>원본 URL:</strong> <span id="displayOriginal"></span></p>
-                <p><strong>단축 키:</strong> <span id="displayKey"></span></p>
-            </div>
-        </div>
+<!-- 네비게이션 -->
+<nav class="navbar">
+    <div class="logo">🔗 Shortly</div>
+    <div class="nav-buttons" id="navButtons">
+        <button class="btn-login" onclick="showModal('login')">로그인</button>
+        <button class="btn-register" onclick="showModal('register')">회원가입</button>
+    </div>
+    <div class="user-info" id="userInfo">
+        <span id="userNickname"></span>
+        <button class="btn-logout" style="display:block;" onclick="logout()">로그아웃</button>
+    </div>
+</nav>
 
-        <div class="divider"></div>
+<!-- 메인 컨텐츠 -->
+<div class="main-content">
+    <div class="hero">
+        <h1>긴 URL, 짧게 줄이세요</h1>
+        <p>간편하게 URL을 단축하고 클릭 수를 추적하세요</p>
+    </div>
 
-        <!-- URL 정보 조회 섹션 -->
-        <div class="lookup-section">
-            <h2>📊 단축 URL 정보 조회</h2>
-            <div class="input-group">
-                <label for="lookupKey">단축 키 입력</label>
-                <input type="text" id="lookupKey" placeholder="abc12345">
-            </div>
-            <button onclick="lookupUrl()">조회하기</button>
-            
-            <div class="result" id="lookupResult">
-                <h3>📋 URL 정보</h3>
-                <div class="info">
-                    <p><strong>원본 URL:</strong> <span id="infoOriginal"></span></p>
-                    <p><strong>단축 키:</strong> <span id="infoKey"></span></p>
-                    <p><strong>클릭 횟수:</strong> <span id="infoCount"></span>회</p>
-                </div>
-            </div>
+    <!-- 로그인 필요 메시지 -->
+    <div class="login-required" id="loginRequired">
+        <p>URL 단축 서비스를 이용하려면 로그인이 필요합니다.</p>
+        <button onclick="showModal('login')">로그인하기</button>
+    </div>
+
+    <!-- URL 단축 박스 -->
+    <div class="url-box" id="urlBox">
+        <div class="url-input-group">
+            <input type="text" id="originalUrl" placeholder="단축할 URL을 입력하세요">
+            <button onclick="shortenUrl()">단축하기</button>
         </div>
     </div>
 
-    <script>
-        const API_BASE = 'http://localhost:8080';
+    <!-- 결과 박스 -->
+    <div class="result-box" id="resultBox">
+        <h3>✅ 단축 완료!</h3>
+        <div class="short-url-display">
+            <input type="text" id="shortUrl" readonly>
+            <button onclick="copyUrl()">복사</button>
+        </div>
+        <div class="result-info">
+            <p><strong>원본 URL:</strong> <span id="displayOriginal"></span></p>
+            <p><strong>단축 키:</strong> <span id="displayKey"></span></p>
+        </div>
+    </div>
 
-        async function shortenUrl() {
-            const originalUrl = document.getElementById('originalUrl').value;
+    <!-- 조회 섹션 -->
+    <div class="lookup-section">
+        <h2>📊 URL 통계 조회</h2>
+        <div class="url-input-group">
+            <input type="text" id="lookupKey" placeholder="단축 키를 입력하세요 (예: abc12345)">
+            <button onclick="lookupUrl()">조회하기</button>
+        </div>
+        <div class="result-box" id="lookupResult" style="margin-top: 20px; box-shadow: none;">
+            <h3>📋 URL 정보</h3>
+            <div class="result-info">
+                <p><strong>원본 URL:</strong> <span id="infoOriginal"></span></p>
+                <p><strong>단축 키:</strong> <span id="infoKey"></span></p>
+                <p><strong>클릭 횟수:</strong> <span id="infoCount"></span>회</p>
+            </div>
+        </div>
+    </div>
+</div>
 
-            
-            if (!originalUrl) {
-                alert('URL을 입력해주세요!');
-                return;
-            }
+<!-- 로그인 모달 -->
+<div class="modal-overlay" id="loginModal">
+    <div class="modal">
+        <h2>로그인</h2>
+        <div class="input-group">
+            <label>이메일</label>
+            <input type="email" id="loginEmail" placeholder="이메일을 입력하세요">
+        </div>
+        <div class="input-group">
+            <label>비밀번호</label>
+            <input type="password" id="loginPassword" placeholder="비밀번호를 입력하세요">
+        </div>
+        <button onclick="login()">로그인</button>
+        <button class="close-btn" onclick="closeModal('login')">닫기</button>
+    </div>
+</div>
 
-            try {
-                const response = await fetch(`${API_BASE}/shortenUrl`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ originalUrl: originalUrl })
-                });
+<!-- 회원가입 모달 -->
+<div class="modal-overlay" id="registerModal">
+    <div class="modal">
+        <h2>회원가입</h2>
+        <div class="input-group">
+            <label>이메일</label>
+            <input type="email" id="registerEmail" placeholder="이메일을 입력하세요">
+        </div>
+        <div class="input-group">
+            <label>비밀번호</label>
+            <input type="password" id="registerPassword" placeholder="비밀번호를 입력하세요">
+        </div>
+        <div class="input-group">
+            <label>닉네임</label>
+            <input type="text" id="registerNickname" placeholder="닉네임을 입력하세요">
+        </div>
+        <button onclick="register()">회원가입</button>
+        <button class="close-btn" onclick="closeModal('register')">닫기</button>
+    </div>
+</div>
 
-                if (response.ok) {
-                    const data = await response.json();
-                    
-                    document.getElementById('shortUrl').value = `${API_BASE}/coding/${data.shortenUrlKey}`;
-                    document.getElementById('displayOriginal').textContent = data.originalUrl;
-                    document.getElementById('displayKey').textContent = data.shortenUrlKey;
-                    document.getElementById('result').classList.add('show');
-                } else {
-                    alert('URL 단축에 실패했습니다.');
-                }
-            } catch (error) {
-                alert('서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.');
-                console.error(error);
-            }
+<!-- 토스트 -->
+<div class="toast" id="toast"></div>
+
+<script>
+    const API_BASE = 'http://localhost:8080';
+    let currentUser = null;
+
+    // 페이지 로드 시 로그인 상태 확인
+    window.onload = function() {
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+            currentUser = JSON.parse(savedUser);
+            updateUI();
+        } else {
+            document.getElementById('loginRequired').style.display = 'block';
+            document.getElementById('urlBox').style.display = 'none';
+        }
+    }
+
+    // UI 업데이트
+    function updateUI() {
+        if (currentUser) {
+            document.getElementById('navButtons').style.display = 'none';
+            document.getElementById('userInfo').style.display = 'flex';
+            document.getElementById('userNickname').textContent = currentUser.nickname + '님';
+            document.getElementById('loginRequired').style.display = 'none';
+            document.getElementById('urlBox').style.display = 'block';
+        } else {
+            document.getElementById('navButtons').style.display = 'block';
+            document.getElementById('userInfo').style.display = 'none';
+            document.getElementById('loginRequired').style.display = 'block';
+            document.getElementById('urlBox').style.display = 'none';
+        }
+    }
+
+    // 모달 표시
+    function showModal(type) {
+        document.getElementById(type + 'Modal').classList.add('show');
+    }
+
+    // 모달 닫기
+    function closeModal(type) {
+        document.getElementById(type + 'Modal').classList.remove('show');
+    }
+
+    // 토스트 표시
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = 'toast show' + (isError ? ' error' : '');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // 회원가입
+    async function register() {
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
+        const nickname = document.getElementById('registerNickname').value;
+
+        if (!email || !password || !nickname) {
+            showToast('모든 필드를 입력해주세요.', true);
+            return;
         }
 
-        async function lookupUrl() {
-            const shortenUrlKey = document.getElementById('lookupKey').value;
-            
-            if (!shortenUrlKey) {
-                alert('단축 키를 입력해주세요!');
-                return;
-            }
+        try {
+            const response = await fetch(`${API_BASE}/users/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password, nickname })
+            });
 
-            try {
-                const response = await fetch(`${API_BASE}/shortenUrl/${shortenUrlKey}`);
-
-                if (response.ok) {
-                    const data = await response.json();
-                    
-                    document.getElementById('infoOriginal').textContent = data.originalUrl;
-                    document.getElementById('infoKey').textContent = data.shortenUrlKey;
-                    document.getElementById('infoCount').textContent = data.redirectCount;
-                    document.getElementById('lookupResult').classList.add('show');
-                } else {
-                    alert('해당 단축 URL을 찾을 수 없습니다.');
-                }
-            } catch (error) {
-                alert('서버에 연결할 수 없습니다.');
-                console.error(error);
+            if (response.ok) {
+                showToast('회원가입 성공! 로그인해주세요.');
+                closeModal('register');
+                showModal('login');
+            } else {
+                const error = await response.text();
+                showToast(error || '회원가입에 실패했습니다.', true);
             }
+        } catch (error) {
+            showToast('서버에 연결할 수 없습니다.', true);
+        }
+    }
+
+    // 로그인
+    async function login() {
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+
+        if (!email || !password) {
+            showToast('이메일과 비밀번호를 입력해주세요.', true);
+            return;
         }
 
-        function copyUrl() {
-            const shortUrl = document.getElementById('shortUrl');
-            shortUrl.select();
-            document.execCommand('copy');
-            alert('복사되었습니다!');
+        try {
+            const response = await fetch(`${API_BASE}/users/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                currentUser = data;
+                localStorage.setItem('user', JSON.stringify(data));
+                closeModal('login');
+                updateUI();
+                showToast('로그인 성공!');
+            } else {
+                showToast('이메일 또는 비밀번호가 틀렸습니다.', true);
+            }
+        } catch (error) {
+            showToast('서버에 연결할 수 없습니다.', true);
         }
-    </script>
+    }
+
+    // 로그아웃
+    function logout() {
+        currentUser = null;
+        localStorage.removeItem('user');
+        updateUI();
+        showToast('로그아웃되었습니다.');
+    }
+
+    // URL 단축
+    async function shortenUrl() {
+        if (!currentUser) {
+            showToast('로그인이 필요합니다.', true);
+            return;
+        }
+
+        const originalUrl = document.getElementById('originalUrl').value;
+
+        if (!originalUrl) {
+            showToast('URL을 입력해주세요.', true);
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE}/shortenUrl`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    originalUrl: originalUrl,
+                    userId: currentUser.id
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById('shortUrl').value = `${API_BASE}/coding/${data.shortenUrlKey}`;
+                document.getElementById('displayOriginal').textContent = data.originalUrl;
+                document.getElementById('displayKey').textContent = data.shortenUrlKey;
+                document.getElementById('resultBox').classList.add('show');
+                showToast('URL 단축 완료!');
+            } else {
+                showToast('URL 단축에 실패했습니다.', true);
+            }
+        } catch (error) {
+            showToast('서버에 연결할 수 없습니다.', true);
+        }
+    }
+
+    // URL 조회
+    async function lookupUrl() {
+        const shortenUrlKey = document.getElementById('lookupKey').value;
+
+        if (!shortenUrlKey) {
+            showToast('단축 키를 입력해주세요.', true);
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE}/shortenUrl/${shortenUrlKey}`);
+
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById('infoOriginal').textContent = data.originalUrl;
+                document.getElementById('infoKey').textContent = data.shortenUrlKey;
+                document.getElementById('infoCount').textContent = data.redirectCount;
+                document.getElementById('lookupResult').classList.add('show');
+            } else {
+                showToast('해당 URL을 찾을 수 없습니다.', true);
+            }
+        } catch (error) {
+            showToast('서버에 연결할 수 없습니다.', true);
+        }
+    }
+
+    // URL 복사
+    function copyUrl() {
+        const shortUrl = document.getElementById('shortUrl');
+        shortUrl.select();
+        document.execCommand('copy');
+        showToast('복사되었습니다!');
+    }
+</script>
 </body>
 </html>
