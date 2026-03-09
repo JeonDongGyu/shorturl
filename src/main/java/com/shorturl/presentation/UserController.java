@@ -4,7 +4,6 @@ import com.shorturl.application.UserService;
 import com.shorturl.domain.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,16 +18,16 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponseDto> register(@Valid @RequestBody UserRegisterRequestDto requestDto){
+    public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRegisterRequest requestDto){
         User user = userService.register(requestDto.getEmail(), requestDto.getPassword(), requestDto.getNickname());
 
-        return ResponseEntity.ok(new UserResponseDto(user));
+        return ResponseEntity.ok(new UserResponse(user));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserResponseDto> login(@Valid @RequestBody UserLoginRequestDto requestDto){
+    public ResponseEntity<UserResponse> login(@Valid @RequestBody UserLoginRequest requestDto){
         User user = userService.login(requestDto.getEmail(),requestDto.getPassword());
 
-        return ResponseEntity.ok(new UserResponseDto(user));
+        return ResponseEntity.ok(new UserResponse(user));
     }
 }

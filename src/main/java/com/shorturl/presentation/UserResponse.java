@@ -4,13 +4,13 @@ import com.shorturl.domain.User;
 import lombok.Getter;
 
 @Getter
-public class UserResponseDto {
+public class UserResponse {
 
     private final Long id;
     private final String email;
     private final String nickname;
 
-    public UserResponseDto(User user) {
+    public UserResponse(User user) {
         this.id = user.getId();
         this.email = user.getEmail();
         this.nickname = user.getNickname();

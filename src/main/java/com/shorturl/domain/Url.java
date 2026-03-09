@@ -10,7 +10,7 @@ import java.util.Random;
 @Entity
 @Getter
 @NoArgsConstructor
-public class ShortenUrl {
+public class Url {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,7 +32,7 @@ public class ShortenUrl {
     @ManyToOne
     private User user;
 
-    public ShortenUrl(String originalUrl, String shortenUrlKey, User user){
+    public Url(String originalUrl, String shortenUrlKey, User user){
         this.originalUrl = originalUrl;
         this.shortenUrlKey = shortenUrlKey;
         this.redirectCount = 0L;

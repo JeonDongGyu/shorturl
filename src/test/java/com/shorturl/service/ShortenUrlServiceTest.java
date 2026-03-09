@@ -1,7 +1,8 @@
 package com.shorturl.service;
 
-import com.shorturl.application.ShortenUrlService;
-import com.shorturl.domain.ShortenUrl;
+import com.shorturl.application.UrlService;
+import com.shorturl.domain.Url;
+import com.shorturl.domain.User;
 import com.shorturl.exception.UrlNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,16 +15,17 @@ import static org.assertj.core.api.Assertions.*;
 public class ShortenUrlServiceTest {
 
     @Autowired
-    private ShortenUrlService shortenUrlService;
+    private UrlService urlService;
 
     @Test
     @DisplayName("URL 단축 생성 테스트")
     void createShortenUrl(){
         //given
         String originalUrl = "http://www.naver.com";
+        User user = new User();
 
         //when
-        ShortenUrl result = shortenUrlService.generateShortenUrl(originalUrl);
+        Url result = urlService.generateShortenUrl(originalUrl, user);
 
         //then
         assertThat(result.getOriginalUrl()).isEqualTo(originalUrl);
@@ -37,7 +39,7 @@ public class ShortenUrlServiceTest {
         String fakeKey = "abcd1234";
 
         //when&then
-        assertThatThrownBy(() -> shortenUrlService.getOriginalUrlByShortenUrlKey(fakeKey))
+        assertThatThrownBy(() -> urlService.getOriginalUrlByShortenUrlKey(fakeKey))
                 .isInstanceOf(UrlNotFoundException.class);
     }
 }

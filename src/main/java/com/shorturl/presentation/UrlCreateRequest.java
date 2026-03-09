@@ -5,7 +5,7 @@ import lombok.Getter;
 
 //클라이언트가 보내는 데이터를 저장
 @Getter
-public class ShortenUrlCreateRequestDto {
+public class UrlCreateRequest {
     @NotNull // 필수값 null이면 안됨
     private String originalUrl;
 
