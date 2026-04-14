@@ -4,6 +4,7 @@ import com.shorturl.application.UrlService;
 import com.shorturl.domain.Url;
 import com.shorturl.domain.User;
 import com.shorturl.domain.UserRepository;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -30,6 +31,7 @@ public class UrlController {
         this.userRepository = userRepository;
     }
 
+    @Hidden
     @GetMapping("/")
     public ResponseEntity<?> index() {
         HttpHeaders headers = new HttpHeaders();
